@@ -1,21 +1,30 @@
 package com.devdroid.express
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.net.Uri
 import android.os.Bundle
+
 import android.util.Log
 import android.widget.Toast
-import com.devdroid.express.MainActivity
-import com.devdroid.express.R
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.devdroid.express.databinding.ActivitySignInBinding
+
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import java.util.*
+
 
 class SignInActivity : AppCompatActivity() {
 
-    lateinit var binding : ActivitySignInBinding
-    lateinit var auth : FirebaseAuth
-    lateinit var db :FirebaseDatabase
+    lateinit var binding: ActivitySignInBinding
+    lateinit var auth: FirebaseAuth
+    lateinit var db: FirebaseDatabase
+
+    lateinit var uri: Uri
+    var imageUrl: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,11 +42,49 @@ class SignInActivity : AppCompatActivity() {
         }
 
         binding.txtLogin.setOnClickListener {
-            startActivity(Intent(this,LogInActivity::class.java))
+            startActivity(Intent(this, LogInActivity::class.java))
+        }
+
+        var getContent = registerForActivityResult(ActivityResultContracts.GetContent()) {
+            binding.imgSignInUser.setImageURI(it)
+            uri=it!!
+            if (uri != null) {
+                uploadImage(uri)
+            }
+        }
+
+        binding.imgSignInUser.setOnClickListener {
+            getContent.launch("image/*")
         }
 
 
     }
+
+    fun uploadImage(uri: Uri) {
+        val storageRef = Firebase.storage.reference
+        val filename = UUID.randomUUID().toString()
+        val ref = storageRef.child("/images/$filename")
+        val uploadTask = ref.putFile(uri)
+
+
+        val urlTask = uploadTask.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                task.exception?.let {
+                    throw it
+                }
+            }
+            ref.downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val downloadUri = task.result
+                imageUrl = downloadUri.toString()
+            } else {
+                Toast.makeText(this,"Failed to upload Image",Toast.LENGTH_SHORT).show()
+
+            }
+        }
+    }
+
 
     private fun signIn(){
         val email = binding.edtSignInEmail.text.toString()
@@ -47,7 +94,7 @@ class SignInActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email,password).addOnCompleteListener { task->
             if(task.isSuccessful){
                 val uid = auth.currentUser?.uid.toString()
-                val user = User(name,uid)
+                val user = User(name,uid, imageUrl.toString())
                 db.getReference().child("users/$uid").setValue(user)
                 startActivity(Intent(this,MainActivity::class.java))
                 finish()
