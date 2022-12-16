@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "430921670205",
+    "project_id": "express-ecb4f",
+    "storage_bucket": "express-ecb4f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:430921670205:android:5776820896bcb9bb3a9454",
+        "android_client_info": {
+          "package_name": "com.devdroid.express"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "430921670205-ntp19l982kkfkm8u2v9b6r4q3v2ebqv1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBM2f036FOaFbY9a8q059HS2mISEL70Hh4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "430921670205-ntp19l982kkfkm8u2v9b6r4q3v2ebqv1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
